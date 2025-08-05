@@ -32,21 +32,20 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configurar scheduler para recarga automática de créditos
 colombia_tz = pytz.timezone('America/Bogota')
 
-# Agregar tarea programada para las 00:10 Colombia (10 minutos después de medianoche)
+# Agregar tarea programada para las 00:10 Colombia cada domingo (cada 7 días)
 scheduler.add_job(
     tarea_recarga_creditos,
     'cron',
+    day_of_week=6,  # 0=lunes, 6=domingo
     hour=0,
     minute=10,
     timezone=colombia_tz,
-    id='recarga_creditos_diaria',
-    name='Recarga Créditos Diaria'
+    id='recarga_creditos_semanal',
+    name='Recarga Créditos Semanal'
 )
 
-# Eventos del ciclo de vida de la aplicación
 @app.on_event("startup")
 async def startup_event():
     """Inicializar scheduler y verificar recarga al iniciar"""
@@ -54,7 +53,7 @@ async def startup_event():
     
     # Iniciar scheduler
     scheduler.start()
-    print("🕛 Scheduler iniciado - Recarga programada para las 00:10 Colombia")
+    print("🕛 Scheduler iniciado - Recarga programada para las 00:10 Colombia cada domingo")
     
     # Verificar recarga de créditos al iniciar
     print("🔄 Verificando recarga de créditos al iniciar...")
@@ -75,9 +74,6 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000", 
         "http://127.0.0.1:3000",
-        "http://localhost:3001", 
-        "http://127.0.0.1:3001",
-        "http://192.168.1.11:3000", 
         "http://172.29.28.105:3000",
         "https://nc26qlpz-3000.use2.devtunnels.ms",
         "https://nc26qlpz-3000.use2.devtunnels.ms/",
@@ -111,7 +107,6 @@ async def health():
         "modelo_disponible": os.path.exists("best.pt")
     }
 
-# Ejecutar la aplicación
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)

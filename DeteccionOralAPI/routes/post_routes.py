@@ -11,39 +11,6 @@ router = APIRouter(tags=["Detección Oral"])
 
 modelo_yolo = ModeloYOLO()
 
-# ENDPOINT NO UTILIZADO - Se usa /detectar-con-datos en su lugar
-# @router.post("/detectar")
-# async def detectar_enfermedades(entrada: DeteccionOral):
-#     """
-#     Detecta enfermedades orales y retorna la imagen con bboxes dibujados
-#     """
-#     try:
-#         # Validar entrada
-#         if not entrada.imagen_base64.strip():
-#             raise HTTPException(status_code=400, detail="La imagen no puede estar vacía")
-#         
-#         if entrada.confianza_minima < 0 or entrada.confianza_minima > 1:
-#             raise HTTPException(status_code=400, detail="La confianza mínima debe estar entre 0 y 1")
-#         
-#         # Realizar detección y obtener imagen con bboxes
-#         imagen_con_bboxes = modelo_yolo.detectar_con_visualizacion(
-#             imagen_base64=entrada.imagen_base64,
-#             confianza_minima=entrada.confianza_minima
-#         )
-#         
-#         # Retornar imagen como respuesta
-#         return StreamingResponse(
-#             io.BytesIO(imagen_con_bboxes),
-#             media_type="image/jpeg",
-#             headers={
-#                 "Content-Disposition": "inline; filename=deteccion.jpg"
-#             }
-#         )
-#         
-#     except HTTPException:
-#         raise
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Error al procesar la imagen: {str(e)}")
 
 @router.post("/api/detectar-con-datos")
 async def detectar_con_datos(entrada: DeteccionOral):
