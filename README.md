@@ -12,11 +12,16 @@ El sistema está dividido en dos componentes principales:
 2. **`DeteccionOralAPI` (Backend)**: API robusta construida con FastAPI que realiza procesamiento de imágenes en tiempo real y ejecuta un modelo de visión por computadora **YOLOv8** (archivo `best.pt`) para detectar y etiquetar enfermedades orales.
 
 ```mermaid
-graph TD
-    Client[Next.js Frontend: DENDITEC] -->|Petición de Análisis + Base64| API[FastAPI Backend: DeteccionOralAPI]
-    API -->|Inferencia YOLOv8| Model[Modelo YOLOv8: best.pt]
-    API -->|Gestión de Usuarios / Suscripciones / Créditos| DB[(Base de Datos SQLite)]
-    API -->|Respuesta con Datos y Bounding Boxes| Client
+flowchart TD
+    Client["Next.js Frontend: DENDITEC"]
+    API["FastAPI Backend: DeteccionOralAPI"]
+    Model["Modelo YOLOv8: best.pt"]
+    DB[("Base de Datos SQLite")]
+
+    Client -->|"Petición de Análisis + Base64"| API
+    API -->|"Inferencia YOLOv8"| Model
+    API -->|"Gestión de Usuarios / Suscripciones / Créditos"| DB
+    API --->|"Respuesta con Datos y Bounding Boxes"| Client
 ```
 
 ---
