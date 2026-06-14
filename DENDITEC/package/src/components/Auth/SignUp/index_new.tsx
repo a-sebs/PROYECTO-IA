@@ -96,10 +96,10 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
       } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
         baseUrl = 'http://localhost:8000';
       } else {
-        baseUrl = `http://${hostname}:8001`;
+        baseUrl = 'https://deteccion-oral-api.onrender.com';
       }
     } else {
-      baseUrl = 'http://localhost:8000';
+      baseUrl = 'https://deteccion-oral-api.onrender.com';
     }
 
     try {

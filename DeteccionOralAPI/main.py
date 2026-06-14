@@ -89,6 +89,8 @@ allowed_origins = os.getenv(
     "http://localhost:3000,http://127.0.0.1:3000,https://denditec.vercel.app"
 ).split(",")
 
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,

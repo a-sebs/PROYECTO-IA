@@ -13,10 +13,10 @@ const getBackendUrl = (): string => {
     } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return 'http://localhost:8000';
     } else {
-      return `http://${hostname}:8001`;
+      return 'https://deteccion-oral-api.onrender.com';
     }
   } else {
-    return 'http://localhost:8000';
+    return 'https://deteccion-oral-api.onrender.com';
   }
 };
 

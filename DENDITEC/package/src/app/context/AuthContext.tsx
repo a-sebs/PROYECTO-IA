@@ -24,20 +24,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Función utilitaria para obtener la URL base del backend
 const getBackendUrl = (): string => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    
+
     if (hostname.includes('devtunnels.ms')) {
       return 'https://nc26qlpz-8001.use2.devtunnels.ms';
     } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return 'http://localhost:8000';
     } else {
-      return `http://${hostname}:8001`;
+      return 'https://deteccion-oral-api.onrender.com';
     }
   } else {
-    return 'http://localhost:8000';
+    return 'https://deteccion-oral-api.onrender.com';
   }
 };
 
@@ -45,7 +44,7 @@ const getBackendUrl = (): string => {
 const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeout: number = 10000): Promise<Response> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -116,9 +115,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       if (newPlan !== undefined) {
         // Si se proporciona un plan específico, actualizarlo directamente
-        const updatedUser = { 
-          ...user, 
-          plan_activo: newPlan 
+        const updatedUser = {
+          ...user,
+          plan_activo: newPlan
         };
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -129,10 +128,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const response = await fetchWithTimeout(`${baseUrl}/api/info-descargas/${user.id}`, {}, 8000);
           if (response.ok) {
             const info = await response.json();
-            const updatedUser = { 
-              ...user, 
+            const updatedUser = {
+              ...user,
               plan_activo: info.plan_activo,
-              descargas_restantes: info.descargas_restantes 
+              descargas_restantes: info.descargas_restantes
             };
             setUser(updatedUser);
             localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -152,8 +151,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const planData = await response.json();
         const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-        const updatedUser = { 
-          ...currentUser, 
+        const updatedUser = {
+          ...currentUser,
           plan_activo: planData.plan_activo
         };
         setUser(updatedUser);
