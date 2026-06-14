@@ -1,95 +1,112 @@
-# DenDiTec — Sistema Inteligente de Detección de Enfermedades Orales
+# DenDiTec: Sistema Inteligente de Detección de Patologías Orales
 
-Este repositorio contiene el proyecto completo **DenDiTec**, un sistema integral que combina un cliente web moderno (Next.js) y una API de alto rendimiento (FastAPI) para realizar la detección temprana y análisis inteligente de patologías dentales y orales a través de Inteligencia Artificial.
+DenDiTec es una solución tecnológica integral diseñada para asistir en la detección temprana y el análisis de patologías dentales y orales a través de Inteligencia Artificial. El sistema combina una interfaz web moderna y responsiva desarrollada en Next.js con una API de alto rendimiento basada en FastAPI, la cual procesa imágenes en tiempo real y ejecuta un modelo de visión por computadora YOLOv8.
 
 ---
 
-## 🏗️ Arquitectura General
+## Arquitectura del Sistema
 
-El sistema está dividido en dos componentes principales:
+El proyecto se compone de dos módulos principales que interactúan de forma desacoplada:
 
-1. **`DENDITEC/package` (Frontend)**: Interfaz de usuario interactiva y responsiva creada con Next.js 15, React 19 y Tailwind CSS. Administra el estado de autenticación, visualiza análisis detallados, gestiona planes de suscripción y ofrece un Chatbot interactivo.
-2. **`DeteccionOralAPI` (Backend)**: API robusta construida con FastAPI que realiza procesamiento de imágenes en tiempo real y ejecuta un modelo de visión por computadora **YOLOv8** (archivo `best.pt`) para detectar y etiquetar enfermedades orales.
+1. **Frontend (DENDITEC/package)**: Interfaz de usuario interactiva estructurada con Next.js 15 y React 19. Implementa la gestión de autenticación, visualización detallada de análisis clínicos, gestión de suscripciones y un canal de comunicación interactivo con un asistente virtual.
+2. **Backend (DeteccionOralAPI)**: Servicio web robusto desarrollado en FastAPI que gestiona la lógica de negocio, realiza la persistencia de datos y ejecuta la inferencia del modelo YOLOv8 (`best.pt`) para la localización y clasificación de patologías orales.
 
 ```mermaid
 flowchart TD
-    Client["Next.js Frontend: DENDITEC"]
-    API["FastAPI Backend: DeteccionOralAPI"]
-    Model["Modelo YOLOv8: best.pt"]
-    DB[("Base de Datos SQLite")]
+    Client["Cliente Web (Next.js): DENDITEC"]
+    API["Servicio API (FastAPI): DeteccionOralAPI"]
+    Model["Modelo de Visión (YOLOv8): best.pt"]
+    DB[("Base de Datos (SQLite)")]
 
-    Client -->|"Petición de Análisis + Base64"| API
+    Client -->|"Petición de Análisis (Base64)"| API
     API -->|"Inferencia YOLOv8"| Model
     API -->|"Gestión de Usuarios / Suscripciones / Créditos"| DB
-    API --->|"Respuesta con Datos y Bounding Boxes"| Client
+    API --->|"Respuesta estructurada + Coordenadas de detección"| Client
 ```
 
 ---
 
-## 🚀 Características Clave
+## Características Principales
 
-* **Detector de Enfermedades Orales por IA**:
-  - Carga de imágenes en formato Base64.
-  - Procesamiento gráfico para superposición de rectángulos delimitadores (*bounding boxes*) en las áreas con patologías.
-  - Detalle detallado del análisis (tiempo de procesamiento, confianza mínima, y modelo usado).
-* **Módulo de Chatbot Dental (Dendi)**: Asistente virtual inteligente para resolver dudas frecuentes sobre higiene dental y salud oral.
-* **Portal de Planes de Suscripción**:
-  - **Plan Gratuito**: Incluye 1050 créditos de análisis iniciales (cada análisis consume 150 créditos) y hasta 2 descargas de reportes PDF.
-  - **Planes Premium / VIP / VIP Advanced**: Permiten análisis y descargas ilimitadas durante 7 días, 30 días o 1 año respectivamente.
-* **Sistema de Blogs**: Módulo informativo sobre prevención y cuidado oral sustentado mediante archivos estáticos Markdown indexados de forma dinámica.
-* **Generación de Reportes PDF**: Exportación local en PDF de los análisis resultantes con límites protegidos por consumo de API.
+### Análisis de Imágenes mediante Inteligencia Artificial
+* Procesamiento asíncrono de imágenes enviadas en formato Base64.
+* Identificación automática de patologías con retorno de coordenadas y niveles de confianza.
+* Superposición precisa de cuadros delimitadores (bounding boxes) coloreados según la categoría detectada.
+
+### Patologías Clínicas Identificadas
+El modelo YOLOv8 integrado está entrenado para reconocer y etiquetar las siguientes condiciones:
+* **Caries**
+* **Gingivitis**
+* **Sarro (Calculus)**
+* **Úlceras**
+* **Hipodoncia**
+* **Decoloración dental**
+
+### Asistente Dental Virtual (Dendi)
+* Chatbot especializado integrado en la interfaz de usuario para resolver consultas informativas comunes sobre salud e higiene oral.
+
+### Módulo de Suscripción y Gestión de Créditos
+* **Plan Gratuito**: Acceso con un cupo inicial de 1050 créditos de análisis (consumo de 150 créditos por consulta) y hasta 2 descargas de reportes PDF.
+* **Planes de Pago (Premium / VIP / VIP Advanced)**: Eliminación de límites de análisis y descargas durante el periodo contratado (7 días, 30 días o 365 días, respectivamente).
+* **Recarga Automática de Créditos**: Tarea programada mediante APScheduler que restablece periódicamente los créditos de los usuarios activos.
+
+### Sistema de Blog Integrado
+* Publicación dinámica de contenido educativo y de prevención odontológica mediante el parsing automático de archivos Markdown estáticos.
+
+### Exportación de Reportes
+* Generación local de documentos PDF con el resumen gráfico e informativo del diagnóstico asistido por IA.
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+## Especificaciones Tecnológicas
 
 ### Frontend (`DENDITEC/package`)
-* **Framework**: [Next.js 15](https://nextjs.org/) (App Router) y React 19.
-* **Estilado**: [Tailwind CSS v4](https://tailwindcss.com/) & [Lucide Icons](https://lucide.dev/).
-* **Autenticación**: Contexto personalizado de react (`AuthContext`) integrado con llamadas al backend de FastAPI.
-* **Tipado**: [TypeScript](https://www.typescriptlang.org/).
-* **Animaciones y Utilidades**: `@iconify/react`, `date-fns`, `jspdf` para reportes.
+* **Framework**: Next.js 15 (App Router) y React 19.
+* **Estilado**: Tailwind CSS e Iconos de Lucide.
+* **Manejo de Estado**: React Context (AuthContext) integrado con la API de autenticación del backend.
+* **Lenguaje**: TypeScript.
+* **Dependencias Adicionales**: `@iconify/react` para iconografía interactiva, `date-fns` para manipulación de fechas y `jspdf` para la generación de reportes PDF.
 
 ### Backend (`DeteccionOralAPI`)
-* **Framework**: [FastAPI](https://fastapi.tiangolo.com/) y Uvicorn.
-* **Visión por Computadora**: [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics), OpenCV-headless, Pillow, y NumPy.
-* **Base de Datos / ORM**: SQLite con SQLAlchemy.
-* **Tareas Programadas**: APScheduler para recarga periódica de créditos.
-* **Contenedores**: Docker y Docker Compose para empaquetado y despliegue rápido.
+* **Framework**: FastAPI y servidor ASGI Uvicorn.
+* **Procesamiento Gráfico y ML**: Ultralytics YOLOv8, OpenCV, Pillow y NumPy.
+* **Persistencia**: SQLite como motor base y SQLAlchemy como ORM (fácilmente escalable a PostgreSQL).
+* **Planificador de Tareas**: APScheduler para la automatización de recargas.
+* **Contenerización**: Configuración lista para Docker y Docker Compose.
 
 ---
 
-## ⚙️ Configuración del Entorno
+## Configuración del Entorno
 
-### Backend (`DeteccionOralAPI`)
-Crea un archivo `.env` en la raíz de `DeteccionOralAPI/` basado en `.env.example`:
+### Configuración del Backend (`DeteccionOralAPI`)
+Cree un archivo `.env` en el directorio raíz de `DeteccionOralAPI/` basado en la plantilla `.env.example`:
 ```env
-ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://denditec.vercel.app
 DATABASE_URL=sqlite:///./usuarios.db
-# Otras variables de configuración de tu servidor
+API_HOST=0.0.0.0
+API_PORT=8000
+ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://denditec.vercel.app
 ```
 
-### Frontend (`DENDITEC/package`)
-Crea un archivo `.env.local` en la raíz de `DENDITEC/package/`:
+### Configuración del Frontend (`DENDITEC/package`)
+Cree un archivo `.env.local` en el directorio raíz de `DENDITEC/package/`:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
-# Agrega llaves privadas de NextAuth si es necesario
 ```
 
 ---
 
-## 🏃 Cómo Ejecutar el Proyecto Localmente
+## Instrucciones para Ejecución Local
 
-### 1. Iniciar el Backend (`DeteccionOralAPI`)
+### Ejecución del Backend (`DeteccionOralAPI`)
 
-Requisitos: **Python 3.10+** (o Docker)
+Requisitos previos: **Python 3.10+** o **Docker**
 
-**Usando Entorno Virtual de Python:**
-1. Navega a la carpeta del backend:
+#### Opción A: Ejecución mediante Entorno Virtual
+1. Acceda al directorio del backend:
    ```bash
    cd DeteccionOralAPI
    ```
-2. Crea e inicia un entorno virtual:
+2. Inicialice y active el entorno virtual:
    ```bash
    python -m venv .venv
    # En Windows:
@@ -97,66 +114,77 @@ Requisitos: **Python 3.10+** (o Docker)
    # En macOS/Linux:
    source .venv/bin/activate
    ```
-3. Instala las dependencias:
+3. Instale las dependencias especificadas:
    ```bash
    pip install -r requirements.txt
    ```
-4. Ejecuta el servidor uvicorn:
+4. Inicie el servidor Uvicorn en modo de recarga automática:
    ```bash
    uvicorn main:app --host 127.0.0.1 --port 8000 --reload
    ```
-   *La API estará disponible en `http://localhost:8000`. Puedes ver la documentación interactiva (Swagger) en `http://localhost:8000/docs`.*
+   * La interfaz interactiva de documentación (Swagger UI) estará disponible en `http://localhost:8000/docs`.
+   * La documentación alternativa (ReDoc) estará disponible en `http://localhost:8000/redoc`.
 
-**Usando Docker:**
-```bash
-cd DeteccionOralAPI
-docker-compose up --build
-```
+#### Opción B: Ejecución mediante Docker Compose
+1. Inicie los contenedores desde el directorio del backend:
+   ```bash
+   cd DeteccionOralAPI
+   ```
+2. Compile e inicie el servicio:
+   ```bash
+   docker-compose up --build
+   ```
 
 ---
 
-### 2. Iniciar el Frontend (`DENDITEC/package`)
+### Ejecución del Frontend (`DENDITEC/package`)
 
-Requisitos: **Node.js 18+**
+Requisitos previos: **Node.js 18+**
 
-1. Navega a la carpeta del frontend:
+1. Acceda al directorio del frontend:
    ```bash
    cd DENDITEC/package
    ```
-2. Instala los paquetes requeridos:
+2. Instale los módulos de Node especificados:
    ```bash
    npm install
    ```
-3. Inicia el servidor de desarrollo:
+3. Inicie el servidor de desarrollo:
    ```bash
    npm run dev
    ```
-   *El frontend se abrirá automáticamente en `http://localhost:3000` (o el puerto alternativo indicado).*
+   * El cliente web estará disponible en `http://localhost:3000`.
 
 ---
 
-## 📁 Estructura del Directorio
+## Estructura de Directorios
 
 ```text
 PROYECTO-IA/
 ├── DENDITEC/
 │   └── package/
 │       ├── src/
-│       │   ├── app/                # Enrutamiento y Páginas (App Router)
-│       │   ├── components/         # Componentes React (Layouts, UI, Auth, etc.)
-│       │   └── context/            # Contexto de Autenticación
+│       │   ├── app/                # Definición de rutas y vistas (App Router)
+│       │   ├── components/         # Componentes modulares y elementos de interfaz
+│       │   └── context/            # Contexto global de autenticación
 │       ├── package.json
 │       └── tsconfig.json
 │
 ├── DeteccionOralAPI/
-│   ├── routes/                 # Rutas de la API (Auth, Detecciones)
-│   ├── services/               # Servicio Inferencia YOLOv8 (modelo_yolo.py)
-│   ├── main.py                 # Punto de entrada de FastAPI
-│   ├── models.py               # Modelos Pydantic y DB
-│   ├── database.py             # Configuración de base de datos
-│   ├── best.pt                 # Pesos del modelo entrenado YOLOv8
+│   ├── routes/                 # Controladores y definición de endpoints de la API
+│   ├── services/               # Lógica de inferencia YOLOv8 (modelo_yolo.py)
+│   ├── main.py                 # Inicialización y configuración del servicio FastAPI
+│   ├── models.py               # Modelos Pydantic y entidades relacionales
+│   ├── database.py             # Configuración de conexiones a base de datos
+│   ├── best.pt                 # Archivo de pesos del modelo YOLOv8 entrenado
 │   ├── Dockerfile
 │   └── docker-compose.yml
 │
-└── README.md                   # Este archivo informativo
+└── README.md                   # Documentación técnica del proyecto
 ```
+
+---
+
+## Descargo de Responsabilidad Clínica
+
+Este software es una herramienta tecnológica de asistencia basada en algoritmos de visión por computadora. Los resultados generados son de carácter informativo y preliminar. No constituyen un diagnóstico clínico profesional, receta médica ni sustituto de la consulta formal con un odontólogo calificado.
