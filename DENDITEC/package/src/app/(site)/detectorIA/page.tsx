@@ -14,12 +14,12 @@ const getBackendUrl = (): string => {
     if (hostname.includes('devtunnels.ms')) {
       return 'https://nc26qlpz-8001.use2.devtunnels.ms';
     } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:8001';
+      return 'http://localhost:8000';
     } else {
       return `http://${hostname}:8001`;
     }
   } else {
-    return 'http://localhost:8001';
+    return 'http://localhost:8000';
   }
 };
 

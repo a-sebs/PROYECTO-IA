@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from models import DeteccionOral
 from services.modelo_yolo import ModeloYOLO
-from database import db_manager
+from database import get_db_manager
 import io
 import base64
 import json
@@ -71,7 +71,7 @@ async def obtener_info_descargas(user_id: int):
     Obtiene información de descargas del usuario
     """
     try:
-        info = db_manager.obtener_info_descargas(user_id)
+        info = get_db_manager().obtener_info_descargas(user_id)
         return info
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
@@ -82,11 +82,12 @@ async def usar_descarga(user_id: int):
     Usar una descarga gratuita del usuario
     """
     try:
-        info = db_manager.obtener_info_descargas(user_id)
-        
+        db = get_db_manager()
+        info = db.obtener_info_descargas(user_id)
+
         if info["puede_descargar"]:
             if not info["plan_activo"]:  # Solo decrementar si no tiene plan activo
-                success = db_manager.decrementar_descarga_gratuita(user_id)
+                success = db.decrementar_descarga_gratuita(user_id)
                 if not success:
                     raise HTTPException(status_code=400, detail="No se pudo usar la descarga")
             
@@ -127,10 +128,10 @@ async def crear_suscripcion(data: dict):
         if plan_tipo not in duraciones:
             raise HTTPException(status_code=400, detail="Tipo de plan inválido")
         
-        success = db_manager.crear_suscripcion(
-            user_id, 
-            plan_tipo, 
-            duraciones[plan_tipo], 
+        success = get_db_manager().crear_suscripcion(
+            user_id,
+            plan_tipo,
+            duraciones[plan_tipo],
             precios[plan_tipo]
         )
         
@@ -149,17 +150,18 @@ async def cancelar_suscripcion(user_id: int):
     """Cancelar la suscripción activa del usuario y volver al plan gratuito"""
     try:
         # Verificar si el usuario tiene una suscripción activa
-        plan_activo = db_manager.verificar_suscripcion_activa(user_id)
-        
+        db = get_db_manager()
+        plan_activo = db.verificar_suscripcion_activa(user_id)
+
         if not plan_activo:
             raise HTTPException(status_code=400, detail="El usuario no tiene una suscripción activa")
-        
+
         # Cancelar la suscripción
-        success = db_manager.cancelar_suscripcion(user_id)
-        
+        success = db.cancelar_suscripcion(user_id)
+
         if success:
             # Dar créditos iniciales al volver al plan gratuito (1000 créditos)
-            db_manager.agregar_creditos(user_id, 1000)
+            db.agregar_creditos(user_id, 1000)
             
             return {
                 "success": True, 
@@ -180,7 +182,7 @@ async def resetear_descargas_usuario(user_id: int):
     Resetear las descargas gratuitas de un usuario específico a 2
     """
     try:
-        success = db_manager.resetear_descargas_gratuitas(user_id)
+        success = get_db_manager().resetear_descargas_gratuitas(user_id)
         
         if success:
             return {
@@ -201,7 +203,7 @@ async def resetear_todas_las_descargas():
     Resetear las descargas gratuitas de todos los usuarios sin plan activo a 2
     """
     try:
-        success = db_manager.resetear_descargas_gratuitas()
+        success = get_db_manager().resetear_descargas_gratuitas()
         
         if success:
             return {

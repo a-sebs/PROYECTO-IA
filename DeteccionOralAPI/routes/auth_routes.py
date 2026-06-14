@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
-from database import db_manager
+from database import get_db_manager
 from typing import Optional
 import re
 
@@ -46,7 +46,7 @@ async def registrar_usuario(usuario: UsuarioRegistro):
             raise HTTPException(status_code=400, detail="Las contraseñas no coinciden")
         
         # Crear usuario
-        resultado = db_manager.crear_usuario(
+        resultado = get_db_manager().crear_usuario(
             usuario.nombre.strip(),
             usuario.apellido.strip(),
             usuario.email.lower(),
@@ -71,7 +71,7 @@ async def registrar_usuario(usuario: UsuarioRegistro):
 async def login_usuario(usuario: UsuarioLogin):
     """Iniciar sesión"""
     try:
-        resultado = db_manager.validar_usuario(usuario.email.lower(), usuario.password)
+        resultado = get_db_manager().validar_usuario(usuario.email.lower(), usuario.password)
         
         if resultado["success"]:
             return {
@@ -91,7 +91,7 @@ async def login_usuario(usuario: UsuarioLogin):
 async def obtener_usuario(user_id: int):
     """Obtener información del usuario"""
     try:
-        usuario = db_manager.obtener_usuario(user_id)
+        usuario = get_db_manager().obtener_usuario(user_id)
         
         if usuario:
             return {
@@ -110,7 +110,7 @@ async def obtener_usuario(user_id: int):
 async def usar_creditos(request: UsarCreditosRequest):
     """Usar créditos del usuario para análisis de IA"""
     try:
-        resultado = db_manager.usar_creditos(request.user_id, 150)
+        resultado = get_db_manager().usar_creditos(request.user_id, 150)
         
         if resultado["success"]:
             return {
@@ -130,7 +130,7 @@ async def usar_creditos(request: UsarCreditosRequest):
 async def obtener_plan_activo(user_id: int):
     """Obtener el plan activo del usuario"""
     try:
-        plan_activo = db_manager.verificar_suscripcion_activa(user_id)
+        plan_activo = get_db_manager().verificar_suscripcion_activa(user_id)
         return {
             "user_id": user_id,
             "plan_activo": plan_activo
@@ -142,7 +142,7 @@ async def obtener_plan_activo(user_id: int):
 async def recargar_creditos():
     """Recargar créditos diarios (endpoint para administración)"""
     try:
-        usuarios_recargados = db_manager.recargar_creditos_diarios()
+        usuarios_recargados = get_db_manager().recargar_creditos_diarios()
         return {
             "success": True,
             "message": f"Se recargaron créditos para {usuarios_recargados} usuarios"

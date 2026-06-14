@@ -95,12 +95,12 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
       if (hostname.includes('devtunnels.ms')) {
         baseUrl = 'https://nc26qlpz-8001.use2.devtunnels.ms';
       } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        baseUrl = 'http://localhost:8001';
+        baseUrl = 'http://localhost:8000';
       } else {
         baseUrl = `http://${hostname}:8001`;
       }
     } else {
-      baseUrl = 'http://localhost:8001';
+      baseUrl = 'http://localhost:8000';
     }
 
     try {

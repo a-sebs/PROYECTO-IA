@@ -1,0 +1,66 @@
+# ============================================================
+# Docker Compose — DeteccionOralAPI + PostgreSQL
+# Para desarrollo: docker compose up
+# Para producción: docker compose -f docker-compose.yml up -d
+# ============================================================
+
+services:
+
+  # ── Base de datos PostgreSQL ─────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: deteccion_oral_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: deteccion_oral_db
+      POSTGRES_USER: api_user
+      POSTGRES_PASSWORD: api_password   # Cambiar en producción
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"   # Exponer solo en desarrollo; quitar en producción
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U api_user -d deteccion_oral_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - api_network
+
+  # ── API FastAPI ──────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: deteccion_oral_api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://api_user:api_password@db:5432/deteccion_oral_db
+      API_HOST: "0.0.0.0"
+      API_PORT: "8000"
+      # Agrega aquí los orígenes CORS extra separados por coma:
+      # ALLOWED_ORIGINS: "http://localhost:3000,https://tu-dominio.com"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy   # Espera a que Postgres esté listo
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    networks:
+      - api_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  api_network:
+    driver: bridge

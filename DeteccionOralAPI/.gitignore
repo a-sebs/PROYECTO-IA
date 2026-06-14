@@ -23,12 +23,16 @@ wheels/
 
 # Virtual environments
 .env
+!.env.example
 .venv
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Docker
+docker-compose.override.yml
 
 # IDE
 .vscode/

@@ -4,32 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useAuth } from "@/app/context/AuthContext";
 import { Icon } from "@iconify/react";
 
-// Función utilitaria para obtener la URL base del backend
-const getBackendUrl = (): string => {
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    
-    if (hostname.includes('devtunnels.ms')) {
-      return 'https://nc26qlpz-8001.use2.devtunnels.ms';
-    } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:8001';
-    } else {
-      return `http://${hostname}:8001`;
-    }
-  } else {
-    return 'http://localhost:8001';
-  }
-};
-
-const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
+const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
   const router = useRouter();
-  const { login } = useAuth();
   const [formData, setFormData] = useState({
+    nombre: "",
+    apellido: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -53,6 +37,20 @@ const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
+    // Validar nombre
+    if (!formData.nombre.trim()) {
+      newErrors.nombre = "El nombre es requerido";
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.nombre)) {
+      newErrors.nombre = "El nombre solo puede contener letras";
+    }
+
+    // Validar apellido
+    if (!formData.apellido.trim()) {
+      newErrors.apellido = "El apellido es requerido";
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.apellido)) {
+      newErrors.apellido = "El apellido solo puede contener letras";
+    }
+
     // Validar email
     if (!formData.email.trim()) {
       newErrors.email = "El email es requerido";
@@ -63,6 +61,15 @@ const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
     // Validar contraseña
     if (!formData.password) {
       newErrors.password = "La contraseña es requerida";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+    }
+
+    // Validar confirmación de contraseña
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Debe confirmar la contraseña";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Las contraseñas no coinciden";
     }
 
     setErrors(newErrors);
@@ -79,35 +86,49 @@ const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
     setIsLoading(true);
     setMessage("");
 
-    // Obtener la URL base del backend
-    const baseUrl = getBackendUrl();
+    // Determinar la URL base según el entorno
+    let baseUrl;
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      
+      if (hostname.includes('devtunnels.ms')) {
+        baseUrl = 'https://nc26qlpz-8001.use2.devtunnels.ms';
+      } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        baseUrl = 'http://localhost:8000';
+      } else {
+        baseUrl = `http://${hostname}:8001`;
+      }
+    } else {
+      baseUrl = 'http://localhost:8000';
+    }
 
     try {
-      const response = await fetch(`${baseUrl}/api/login`, {
+      const response = await fetch(`${baseUrl}/api/registro`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          nombre: formData.nombre.trim(),
+          apellido: formData.apellido.trim(),
           email: formData.email.toLowerCase().trim(),
           password: formData.password,
+          confirm_password: formData.confirmPassword,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Guardar información del usuario usando el context
-        login(data.user);
-        setMessage("¡Inicio de sesión exitoso! Redirigiendo...");
+        setMessage("¡Registro exitoso! Redirigiendo al login...");
         setTimeout(() => {
-          router.push("/");
-        }, 1500);
+          router.push("/login");
+        }, 2000);
       } else {
-        setMessage(data.detail || "Credenciales incorrectas");
+        setMessage(data.detail || "Error en el registro");
       }
     } catch (error) {
-      console.error('Error en login:', error);
+      console.error('Error en registro:', error);
       setMessage("Error de conexión. Intenta nuevamente.");
     } finally {
       setIsLoading(false);
@@ -119,7 +140,7 @@ const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
       <div className="mb-8 text-center">
         <div className="flex justify-center mb-6">
           <Image
-            src="/images/header/logo.svg"
+            src="/images/header/logo.png"
             alt="DenDiTec"
             width={60}
             height={60}
@@ -127,14 +148,59 @@ const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
           />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Iniciar sesión
+          Crear cuenta
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Ingresa tus credenciales para acceder
+          Completa los datos para registrarte
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Nombre y Apellido en la misma fila */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Nombre
+            </label>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              required
+              value={formData.nombre}
+              onChange={handleChange}
+              className={`w-full rounded-md border border-black/10 dark:border-white/20 border-solid bg-transparent px-4 py-3 text-base text-dark outline-none transition placeholder:text-gray-400 focus:border-primary focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                errors.nombre ? 'border-red-500' : ''
+              }`}
+              placeholder="Tu nombre"
+            />
+            {errors.nombre && (
+              <p className="mt-1 text-sm text-red-600">{errors.nombre}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="apellido" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Apellido
+            </label>
+            <input
+              id="apellido"
+              name="apellido"
+              type="text"
+              required
+              value={formData.apellido}
+              onChange={handleChange}
+              className={`w-full rounded-md border border-black/10 dark:border-white/20 border-solid bg-transparent px-4 py-3 text-base text-dark outline-none transition placeholder:text-gray-400 focus:border-primary focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+                errors.apellido ? 'border-red-500' : ''
+              }`}
+              placeholder="Tu apellido"
+            />
+            {errors.apellido && (
+              <p className="mt-1 text-sm text-red-600">{errors.apellido}</p>
+            )}
+          </div>
+        </div>
+
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -167,17 +233,40 @@ const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
             id="password"
             name="password"
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             required
             value={formData.password}
             onChange={handleChange}
             className={`w-full rounded-md border border-black/10 dark:border-white/20 border-solid bg-transparent px-4 py-3 text-base text-dark outline-none transition placeholder:text-gray-400 focus:border-primary focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
               errors.password ? 'border-red-500' : ''
             }`}
-            placeholder="Tu contraseña"
+            placeholder="Mínimo 6 caracteres"
           />
           {errors.password && (
             <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+          )}
+        </div>
+
+        {/* Confirmar Contraseña */}
+        <div>
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Confirmar contraseña
+          </label>
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            required
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            className={`w-full rounded-md border border-black/10 dark:border-white/20 border-solid bg-transparent px-4 py-3 text-base text-dark outline-none transition placeholder:text-gray-400 focus:border-primary focus-visible:shadow-none dark:text-white dark:focus:border-primary ${
+              errors.confirmPassword ? 'border-red-500' : ''
+            }`}
+            placeholder="Confirma tu contraseña"
+          />
+          {errors.confirmPassword && (
+            <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
           )}
         </div>
 
@@ -192,7 +281,7 @@ const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
           </div>
         )}
 
-        {/* Botón de login */}
+        {/* Botón de registro */}
         <button
           type="submit"
           disabled={isLoading}
@@ -205,47 +294,28 @@ const SignIn = ({ signInOpen }: { signInOpen?: any }) => {
           {isLoading ? (
             <>
               <Icon icon="ph:spinner" width={20} height={20} className="animate-spin" />
-              Iniciando sesión...
+              Registrando...
             </>
           ) : (
-            'Iniciar sesión'
+            'Crear cuenta'
           )}
         </button>
 
         {/* Enlaces */}
         <div className="text-center mt-6">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            ¿No tienes cuenta?{" "}
+            ¿Ya tienes cuenta?{" "}
             <Link
-              href="/signup"
+              href="/login"
               className="font-medium text-primary hover:text-primary/80 transition-colors"
             >
-              Regístrate aquí
+              Inicia sesión aquí
             </Link>
           </p>
-        </div>
-
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">
-                ¿Problemas para acceder?
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Contacta al administrador si no puedes acceder a tu cuenta
-            </p>
-          </div>
         </div>
       </form>
     </div>
   );
 };
 
-export default SignIn;
+export default SignUp;
