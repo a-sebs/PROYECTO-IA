@@ -86,21 +86,12 @@ app = FastAPI(
 # CORS
 allowed_origins = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://127.0.0.1:3000"
+    "http://localhost:3000,http://127.0.0.1:3000,https://denditec.vercel.app"
 ).split(",")
-
-# Orígenes adicionales fijos para dev tunnels
-extra_origins = [
-    "http://172.29.28.105:3000",
-    "https://nc26qlpz-3000.use2.devtunnels.ms",
-    "https://nc26qlpz-3000.use2.devtunnels.ms/",
-    "https://nc26qlpz-8001.use2.devtunnels.ms",
-    "https://nc26qlpz-8001.use2.devtunnels.ms/",
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins + extra_origins,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
