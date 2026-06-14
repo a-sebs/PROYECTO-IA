@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Si no se proporciona plan, obtener del servidor
         try {
           const baseUrl = getBackendUrl();
-          const response = await fetchWithTimeout(`${baseUrl}/api/info-descargas/${user.id}`, {}, 8000);
+          const response = await fetchWithTimeout(`${baseUrl}/api/info-descargas/${user.id}`, {}, 30000);
           if (response.ok) {
             const info = await response.json();
             const updatedUser = {
@@ -147,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserPlanById = async (userId: number) => {
     try {
       const baseUrl = getBackendUrl();
-      const response = await fetchWithTimeout(`${baseUrl}/auth/plan-activo/${userId}`, {}, 8000);
+      const response = await fetchWithTimeout(`${baseUrl}/auth/plan-activo/${userId}`, {}, 30000);
       if (response.ok) {
         const planData = await response.json();
         const currentUser = JSON.parse(localStorage.getItem('user') || '{}');

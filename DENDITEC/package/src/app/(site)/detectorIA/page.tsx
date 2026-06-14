@@ -24,7 +24,7 @@ const getBackendUrl = (): string => {
 };
 
 // Función utilitaria para hacer fetch con timeout
-const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeout: number = 10000): Promise<Response> => {
+const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeout: number = 60000): Promise<Response> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
   
@@ -70,7 +70,7 @@ export default function DetectorIA() {
     
     try {
       const baseUrl = getBackendUrl();
-      const response = await fetchWithTimeout(`${baseUrl}/api/info-descargas/${user.id}`, {}, 8000);
+      const response = await fetchWithTimeout(`${baseUrl}/api/info-descargas/${user.id}`, {}, 30000);
       if (response.ok) {
         const info = await response.json();
         setDownloadInfo(info);
@@ -123,7 +123,7 @@ export default function DetectorIA() {
         const baseUrl = getBackendUrl();
         const response = await fetchWithTimeout(`${baseUrl}/api/usar-descarga/${user.id}`, {
           method: 'POST'
-        }, 8000);
+        }, 30000);
         
         if (!response.ok) {
           throw new Error('Sin descargas disponibles');
@@ -302,7 +302,7 @@ export default function DetectorIA() {
           imagen_base64: selectedImage,
           confianza_minima: 0.2
         })
-      });
+      }, 90000);
 
       if (response.ok) {
         const data = await response.json();
