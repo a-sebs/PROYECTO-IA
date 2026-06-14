@@ -99,7 +99,9 @@ const PlanesModal: React.FC<PlanesModalProps> = ({ isOpen, onClose, onPlanSelect
 
       if (response.ok) {
         alert('¡Suscripción activada exitosamente!');
-        onPlanSelect && onPlanSelect(planId);
+        if (onPlanSelect) {
+          onPlanSelect(planId);
+        }
         onClose();
         // Recargar la página para actualizar el estado
         window.location.reload();

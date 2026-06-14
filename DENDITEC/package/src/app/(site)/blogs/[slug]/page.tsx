@@ -103,7 +103,7 @@ export default async function Post({ params }: any) {
                         <div className="flex items-center justify-between gap-6 mt-12">
                             <div className="flex items-center gap-4">
                                 <Image
-                                    src={post.authorImage}
+                                    src={post.authorImage || ""}
                                     alt="image"
                                     className="bg-no-repeat bg-contain inline-block rounded-full !w-12 !h-12"
                                     width={48}
@@ -126,7 +126,7 @@ export default async function Post({ params }: any) {
                                         className=''
                                     />
                                     <span className="text-base text-dark font-medium dark:text-white">
-                                        {format(new Date(post.date), "MMM dd, yyyy")}
+                                        {format(new Date(post.date || ""), "MMM dd, yyyy")}
                                     </span>
                                 </div>
                                 <div className="py-2.5 px-5 bg-dark/5 rounded-full dark:bg-white/15">
@@ -137,7 +137,7 @@ export default async function Post({ params }: any) {
                     </div>
                     <div className="z-20 mt-12 overflow-hidden rounded">
                         <Image
-                            src={post.coverImage}
+                            src={post.coverImage || ""}
                             alt="image"
                             width={1170}
                             height={766}

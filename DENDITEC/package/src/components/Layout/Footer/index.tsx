@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Icon } from "@iconify/react"
 import { FooterLinks } from "@/app/api/footerlinks";
 
 const Footer = () => {

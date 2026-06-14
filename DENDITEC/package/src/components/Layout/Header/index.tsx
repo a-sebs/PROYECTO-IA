@@ -2,17 +2,15 @@
 import { navLinks } from '@/app/api/navlink'
 import { Icon } from '@iconify/react'
 import Link from 'next/link'
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import NavLink from './Navigation/NavLink'
 import { useTheme } from 'next-themes'
-import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { useAuth } from '@/app/context/AuthContext'
 
 const Header: React.FC = () => {
   const [navbarOpen, setNavbarOpen] = useState(false)
   const { theme, setTheme } = useTheme()
-  const pathname = usePathname()
   const { user, logout, isLoading } = useAuth()
 
   const sideMenuRef = useRef<HTMLDivElement>(null)
